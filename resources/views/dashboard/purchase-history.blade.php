@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Delivery Dashboard - Inventory System</title>
+    <title>Purchase History - Inventory System</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -11,7 +11,9 @@
             <h1 class="text-2xl font-bold">Inventory System</h1>
             <ul class="flex space-x-4">
                 <li><a href="{{ route('products.index') }}" class="hover:text-gray-300">Home</a></li>
-                <li><a href="{{ route('dashboard.delivery') }}" class="hover:text-gray-300">Delivery Dashboard</a></li>
+                <li><a href="{{ route('dashboard.admin') }}" class="hover:text-gray-300">Admin Dashboard</a></li>
+                <li><a href="{{ route('dashboard.lowstock-products') }}" class="hover:text-gray-300">Low Stock Products</a></li>
+                <li><a href="{{ route('dashboard.purchase-history') }}" class="hover:text-gray-300">Purchase History</a></li>
                 <li>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
@@ -24,37 +26,31 @@
 
     <!-- Main Content -->
     <div class="container mx-auto p-4 flex-grow">
-        <h1 class="text-3xl font-bold mb-6 text-center">Delivery Dashboard</h1>
+        <h1 class="text-3xl font-bold mb-6 text-center">Purchase History</h1>
         
         <!-- Search and Filter -->
         <div class="mb-6 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
-            <form method="GET" action="{{ route('dashboard.delivery') }}" class="flex-1">
+            <form method="GET" action="{{ route('dashboard.purchase-history') }}" class="flex-1">
                 <div class="flex space-x-2">
                     <input type="text" name="search" class="p-2 border rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter order ID or product name (e.g., 1, phone)" value="{{ request('search') }}">
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200">Search</button>
                 </div>
             </form>
-            <form method="GET" action="{{ route('dashboard.delivery') }}">
+            <form method="GET" action="{{ route('dashboard.purchase-history') }}">
                 <select name="status" class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="this.form.submit()">
                     <option value="All" {{ request('status') == 'All' || !request('status') ? 'selected' : '' }}>All</option>
                     <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
                     <option value="Shipped" {{ request('status') == 'Shipped' ? 'selected' : '' }}>Shipped</option>
                     <option value="Delivered" {{ request('status') == 'Delivered' ? 'selected' : '' }}>Delivered</option>
                 </select>
-                @if(request('search'))
-                    <input type="hidden" name="search" value="{{ request('search') }}">
-                @endif
+              @if(request('search'))
+    <input type="hidden" name="search" value="{{ request('search') }}">
+@endif
             </form>
         </div>
 
         <!-- Orders Table -->
         <div class="bg-white p-6 rounded-lg shadow-lg">
-            @if(session('success'))
-                <div class="mb-4 text-green-500">{{ session('success') }}</div>
-            @endif
-            @if(session('error'))
-                <div class="mb-4 text-red-500">{{ session('error') }}</div>
-            @endif
             <table class="w-full border-collapse">
                 <thead>
                     <tr class="bg-gray-200">
@@ -63,7 +59,6 @@
                         <th class="p-3 text-left">Quantity</th>
                         <th class="p-3 text-left">Order Date</th>
                         <th class="p-3 text-left">Status</th>
-                        <th class="p-3 text-left">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -74,28 +69,6 @@
                             <td class="p-3">{{ $order->quantity }}</td>
                             <td class="p-3">{{ $order->order_date }}</td>
                             <td class="p-3">{{ $order->status }}</td>
-                            <td class="p-3">
-                                <form method="POST" action="{{ route('order.updateStatus', $order) }}">
-                                    @csrf
-                                    @method('POST')
-                                    <div class="flex flex-col space-y-2">
-                                        <select name="status" class="p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                            <option value="Pending" {{ $order->status == 'Pending' ? 'selected' : '' }}>Pending</option>
-                                            <option value="Shipped" {{ $order->status == 'Shipped' ? 'selected' : '' }}>Shipped</option>
-                                            <option value="Delivered" {{ $order->status == 'Delivered' ? 'selected' : '' }}>Delivered</option>
-                                        </select>
-                                        <input type="number" name="quantity" value="{{ $order->quantity }}" class="p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" min="1" required>
-                                        <input type="date" name="order_date" value="{{ $order->order_date }}" class="p-1 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" max="{{ date('Y-m-d') }}" required>
-                                        <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition duration-200">Update</button>
-                                    </div>
-                                    @error('quantity')
-                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                    @enderror
-                                    @error('order_date')
-                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                    @enderror
-                                </form>
-                            </td>
                         </tr>
                     @endforeach
                 </tbody>

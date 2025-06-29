@@ -29,7 +29,7 @@ class DashboardController extends Controller
             });
         }
         
-        $lowStockProducts = $query->get(); // Changed from paginate(10) to get()
+        $lowStockProducts = $query->get();
         $totalOrders = Order::count();
         $totalLowStock = $query->count();
         
@@ -81,10 +81,9 @@ class DashboardController extends Controller
         return view('dashboard.delivery', compact('orders'));
     }
 
-    public function lowstockPurchases(Request $request)
+    public function lowStockProducts(Request $request)
     {
-        // Low stock products
-        $lowStockQuery = Product::where(function ($q) {
+        $query = Product::where(function ($q) {
             return $q->whereRaw('stock < low_stock_threshold')
                      ->orWhereHas('orders', function ($q) {
                          $q->where('order_date', '>=', now()->subDays(30));
@@ -93,7 +92,7 @@ class DashboardController extends Controller
         
         if ($request->has('search') && $request->search) {
             $searchTerm = $request->search;
-            $lowStockQuery->where(function ($q) use ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
                 $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%'])
                   ->orWhereHas('category', function ($q) use ($searchTerm) {
                       $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%']);
@@ -101,18 +100,21 @@ class DashboardController extends Controller
             });
         }
         
-        $lowStockProducts = $lowStockQuery->paginate(10);
-        
-        // Orders with status filtering
-        $ordersQuery = Order::latest()->with('product');
+        $lowStockProducts = $query->paginate(10);
+        return view('dashboard.lowstock-products', compact('lowStockProducts'));
+    }
+
+    public function purchaseHistory(Request $request)
+    {
+        $query = Order::latest()->with('product');
         
         if ($request->has('status') && $request->status !== 'All') {
-            $ordersQuery->where('status', $request->status);
+            $query->where('status', $request->status);
         }
         
         if ($request->has('search') && $request->search) {
             $searchTerm = $request->search;
-            $ordersQuery->where(function ($q) use ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
                 $q->whereRaw('CAST(id AS TEXT) ILIKE ?', ['%' . $searchTerm . '%'])
                   ->orWhereHas('product', function ($q) use ($searchTerm) {
                       $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%']);
@@ -120,9 +122,8 @@ class DashboardController extends Controller
             });
         }
         
-        $orders = $ordersQuery->paginate(10);
-        
-        return view('dashboard.lowstock-purchases', compact('lowStockProducts', 'orders'));
+        $orders = $query->paginate(10);
+        return view('dashboard.purchase-history', compact('orders'));
     }
 
     public function updateOrderStatus(Request $request, Order $order)
@@ -132,11 +133,18 @@ class DashboardController extends Controller
         }
         
         $request->validate([
-            'status' => 'required|in:Pending,Shipped,Delivered'
+            'status' => 'required|in:Pending,Shipped,Delivered',
+            'quantity' => 'required|integer|min:1',
+            'order_date' => 'required|date|before_or_equal:today',
         ]);
         
-        $order->update(['status' => $request->status]);
-        return back()->with('success', 'Order status updated');
+        $order->update([
+            'status' => $request->status,
+            'quantity' => $request->quantity,
+            'order_date' => $request->order_date,
+        ]);
+        
+        return back()->with('success', 'Order updated successfully');
     }
 
     public function logStockImport(Request $request)
@@ -148,19 +156,19 @@ class DashboardController extends Controller
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'required|integer|min:1',
-            'import_date' => 'required|date'
+            'import_date' => 'required|date',
         ]);
         
         StockImport::create([
             'product_id' => $request->product_id,
             'quantity' => $request->quantity,
-            'import_date' => $request->import_date
+            'import_date' => $request->import_date,
         ]);
         
         $product = Product::find($request->product_id);
         $product->update([
             'stock' => $product->stock + $request->quantity,
-            'last_import_date' => $request->import_date
+            'last_import_date' => $request->import_date,
         ]);
         
         return back()->with('success', 'Stock import logged');

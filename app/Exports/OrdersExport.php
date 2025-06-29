@@ -8,19 +8,17 @@ class OrdersExport implements FromCollection, WithHeadings
 {
     public function collection()
     {
-        return Order::with('product')->get()->map(function ($order) {
-            return [
-                'Order ID' => $order->id,
-                'Product' => $order->product->name,
-                'Quantity' => $order->quantity,
-                'Order Date' => $order->order_date,
-                'Status' => $order->status
-            ];
-        });
+        return Order::with('product')->get();
     }
 
     public function headings(): array
     {
-        return ['Order ID', 'Product', 'Quantity', 'Order Date', 'Status'];
+        return [
+            'Order ID',
+            'Product Name',
+            'Quantity',
+            'Order Date',
+            'Status',
+        ];
     }
 }
