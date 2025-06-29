@@ -1,9 +1,7 @@
 <?php
 namespace App\Http\Controllers;
-use App\Http\Requests\LoginRequest;
-//  Hannah
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -12,21 +10,18 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function login(LoginRequest $request)
+    public function login(Request $request)
     {
-        $credentials = $request->only('email', 'password');
-        
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
         if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            if ($user->role === 'admin') {
-                return redirect()->route('dashboard.admin');
-            } elseif ($user->role === 'warehouse') {
-                return redirect()->route('dashboard.warehouse');
-            } elseif ($user->role === 'delivery') {
-                return redirect()->route('dashboard.delivery');
-            }
+            $request->session()->regenerate();
+            return redirect()->intended('/dashboard/' . Auth::user()->role);
         }
-        
+
         return back()->withErrors(['email' => 'Invalid credentials']);
     }
 
@@ -35,6 +30,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login');
+        return redirect('/login');
     }
 }

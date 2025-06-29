@@ -81,6 +81,50 @@ class DashboardController extends Controller
         return view('dashboard.delivery', compact('orders'));
     }
 
+    public function lowstockPurchases(Request $request)
+    {
+        // Low stock products
+        $lowStockQuery = Product::where(function ($q) {
+            return $q->whereRaw('stock < low_stock_threshold')
+                     ->orWhereHas('orders', function ($q) {
+                         $q->where('order_date', '>=', now()->subDays(30));
+                     });
+        })->with('category');
+        
+        if ($request->has('search') && $request->search) {
+            $searchTerm = $request->search;
+            $lowStockQuery->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%'])
+                  ->orWhereHas('category', function ($q) use ($searchTerm) {
+                      $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%']);
+                  });
+            });
+        }
+        
+        $lowStockProducts = $lowStockQuery->paginate(10);
+        
+        // Orders with status filtering
+        $ordersQuery = Order::latest()->with('product');
+        
+        if ($request->has('status') && $request->status !== 'All') {
+            $ordersQuery->where('status', $request->status);
+        }
+        
+        if ($request->has('search') && $request->search) {
+            $searchTerm = $request->search;
+            $ordersQuery->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('CAST(id AS TEXT) ILIKE ?', ['%' . $searchTerm . '%'])
+                  ->orWhereHas('product', function ($q) use ($searchTerm) {
+                      $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%']);
+                  });
+            });
+        }
+        
+        $orders = $ordersQuery->paginate(10);
+        
+        return view('dashboard.lowstock-purchases', compact('lowStockProducts', 'orders'));
+    }
+
     public function updateOrderStatus(Request $request, Order $order)
     {
         if (Auth::user()->role !== 'delivery') {
