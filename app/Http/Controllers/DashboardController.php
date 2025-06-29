@@ -29,7 +29,7 @@ class DashboardController extends Controller
             });
         }
         
-        $lowStockProducts = $query->paginate(10);
+        $lowStockProducts = $query->get(); // Changed from paginate(10) to get()
         $totalOrders = Order::count();
         $totalLowStock = $query->count();
         
