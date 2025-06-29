@@ -22,7 +22,7 @@
                         <option value="Shipped" {{ request('status') == 'Shipped' ? 'selected' : '' }}>Shipped</option>
                         <option value="Delivered" {{ request('status') == 'Delivered' ? 'selected' : '' }}>Delivered</option>
                     </select>
-                    <input type="text" name="search" class="p-2 border rounded" placeholder="Search by order ID or product name" value="{{ request('search') }}">
+                    <input type="text" name="search" class="p-2 border rounded" placeholder="Enter any part of order ID or product name (e.g., 1, phone)" value="{{ request('search') }}">
                     <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Filter</button>
                 </div>
             </form>

@@ -20,10 +20,11 @@ class DashboardController extends Controller
         })->with('category');
         
         if ($request->has('search') && $request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('category', function ($q) use ($request) {
-                      $q->where('name', 'like', '%' . $request->search . '%');
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%'])
+                  ->orWhereHas('category', function ($q) use ($searchTerm) {
+                      $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%']);
                   });
             });
         }
@@ -45,10 +46,11 @@ class DashboardController extends Controller
         })->with('category');
         
         if ($request->has('search') && $request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('category', function ($q) use ($request) {
-                      $q->where('name', 'like', '%' . $request->search . '%');
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%'])
+                  ->orWhereHas('category', function ($q) use ($searchTerm) {
+                      $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%']);
                   });
             });
         }
@@ -61,17 +63,16 @@ class DashboardController extends Controller
     {
         $query = Order::latest()->with('product');
         
-        // Status filtering
         if ($request->has('status') && $request->status !== 'All') {
             $query->where('status', $request->status);
         }
         
-        // Search by product name or order ID
         if ($request->has('search') && $request->search) {
-            $query->where(function ($q) use ($request) {
-                $q->where('id', 'like', '%' . $request->search . '%')
-                  ->orWhereHas('product', function ($q) use ($request) {
-                      $q->where('name', 'like', '%' . $request->search . '%');
+            $searchTerm = $request->search;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->whereRaw('CAST(id AS TEXT) ILIKE ?', ['%' . $searchTerm . '%'])
+                  ->orWhereHas('product', function ($q) use ($searchTerm) {
+                      $q->whereRaw('name ILIKE ?', ['%' . $searchTerm . '%']);
                   });
             });
         }

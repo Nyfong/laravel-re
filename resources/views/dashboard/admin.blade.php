@@ -15,7 +15,7 @@
         </div>
         <div class="mb-4">
             <form method="GET" action="{{ route('dashboard.admin') }}">
-                <input type="text" name="search" class="p-2 border rounded" placeholder="Search products or categories" value="{{ request('search') }}">
+                <input type="text" name="search" class="p-2 border rounded" placeholder="Enter any part of product or category name (e.g., phone, Electronics)" value="{{ request('search') }}">
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
             </form>
         </div>
