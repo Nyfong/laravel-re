@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Low Stock Products - Inventory System</title>
+    <title>Non-Purchased Products - Inventory System</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
@@ -27,11 +27,11 @@
 
     <!-- Main Content -->
     <div class="container mx-auto p-6 flex-grow">
-        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Low Stock Products</h1>
+        <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Non-Purchased Products</h1>
         
         <!-- Search -->
         <div class="mb-6">
-            <form method="GET" action="{{ route('dashboard.lowstock-products') }}">
+            <form method="GET" action="{{ route('dashboard.non-purchased-products') }}">
                 <div class="flex space-x-2">
                     <input type="text" name="search" class="p-3 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Search by product name or category" value="{{ request('search') }}">
                     <button type="submit" class="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 transition duration-200">Search</button>
@@ -39,7 +39,7 @@
             </form>
         </div>
 
-        <!-- Low Stock Products Table -->
+        <!-- Non-Purchased Products Table -->
         <div class="bg-white p-6 rounded-lg shadow-xl hover:shadow-2xl transition-shadow duration-200">
             <table class="w-full border-collapse">
                 <thead>
@@ -51,7 +51,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($lowStockProducts as $product)
+                    @foreach($nonPurchasedProducts as $product)
                         <tr class="border-b hover:bg-gray-50">
                             <td class="p-3">{{ $product->name }}</td>
                             <td class="p-3">{{ $product->category->name }}</td>
@@ -62,7 +62,7 @@
                 </tbody>
             </table>
             <div class="mt-6">
-                {{ $lowStockProducts->appends(request()->query())->links() }}
+                {{ $nonPurchasedProducts->appends(request()->query())->links() }}
             </div>
         </div>
     </div>
