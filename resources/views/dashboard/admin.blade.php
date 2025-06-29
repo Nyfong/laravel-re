@@ -13,6 +13,12 @@
                 <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
             </form>
         </div>
+        <div class="mb-4">
+            <form method="GET" action="{{ route('dashboard.admin') }}">
+                <input type="text" name="search" class="p-2 border rounded" placeholder="Search products or categories" value="{{ request('search') }}">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
+            </form>
+        </div>
         <div class="grid grid-cols-2 gap-4 mb-6">
             <div class="bg-white p-4 rounded shadow">
                 <h2 class="text-xl font-semibold">Total Orders</h2>
@@ -47,6 +53,7 @@
                     @endforeach
                 </tbody>
             </table>
+            {{ $lowStockProducts->links() }}
         </div>
         <a href="{{ route('orders.export') }}" class="bg-green-500 text-white px-4 py-2 rounded">Export Orders to Excel</a>
     </div>

@@ -13,6 +13,38 @@
                 <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded">Logout</button>
             </form>
         </div>
+        <div class="mb-4">
+            <form method="GET" action="{{ route('dashboard.warehouse') }}">
+                <input type="text" name="search" class="p-2 border rounded" placeholder="Search products or categories" value="{{ request('search') }}">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Search</button>
+            </form>
+        </div>
+        <div class="bg-white p-4 rounded shadow mb-6">
+            <h2 class="text-xl font-semibold mb-4">Log Stock Import</h2>
+            <form method="POST" action="{{ route('stock.import') }}">
+                @csrf
+                <div class="mb-4">
+                    <label class="block text-gray-700">Product</label>
+                    <select name="product_id" class="w-full p-2 border rounded" required>
+                        @foreach(\App\Models\Product::all() as $product)
+                            <option value="{{ $product->id }}">{{ $product->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700">Quantity</label>
+                    <input type="number" name="quantity" class="w-full p-2 border rounded" required>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700">Import Date</label>
+                    <input type="date" name="import_date" class="w-full p-2 border rounded" required>
+                </div>
+                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Log Import</button>
+            </form>
+            @if (session('success'))
+                <div class="text-green-500 mt-2">{{ session('success') }}</div>
+            @endif
+        </div>
         <div class="bg-white p-4 rounded shadow">
             <h2 class="text-xl font-semibold mb-4">Low Stock Products</h2>
             <table class="w-full border-collapse">
@@ -37,6 +69,7 @@
                     @endforeach
                 </tbody>
             </table>
+            {{ $lowStockProducts->links() }}
         </div>
     </div>
 </body>

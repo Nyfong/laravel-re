@@ -12,4 +12,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/warehouse', [DashboardController::class, 'warehouse'])->name('dashboard.warehouse');
     Route::get('/dashboard/delivery', [DashboardController::class, 'delivery'])->name('dashboard.delivery');
     Route::get('/orders/export', [DashboardController::class, 'exportOrders'])->name('orders.export');
+    Route::post('/order/{order}/status', [DashboardController::class, 'updateOrderStatus'])->name('order.updateStatus');
+    Route::post('/stock/import', [DashboardController::class, 'logStockImport'])->name('stock.import');
 });

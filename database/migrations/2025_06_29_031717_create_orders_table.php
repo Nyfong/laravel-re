@@ -15,8 +15,10 @@ class CreateOrdersTable extends Migration
             $table->timestamps();
         });
     }
-    public function down()
+ public function down()
     {
-        Schema::dropIfExists('orders');
+        Schema::table('orders', function (Blueprint $table) {
+            $table->dropColumn('status');
+        });
     }
 }

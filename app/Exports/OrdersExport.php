@@ -14,12 +14,13 @@ class OrdersExport implements FromCollection, WithHeadings
                 'Product' => $order->product->name,
                 'Quantity' => $order->quantity,
                 'Order Date' => $order->order_date,
+                'Status' => $order->status
             ];
         });
     }
 
     public function headings(): array
     {
-        return ['Order ID', 'Product', 'Quantity', 'Order Date'];
+        return ['Order ID', 'Product', 'Quantity', 'Order Date', 'Status'];
     }
 }
